@@ -97,5 +97,9 @@ while true; do
 done
 
 # TODO Sign off on patch(es)
+
 # TODO Remove any files created during testing 
+
+# TODO Remove branch, or at least check out master again
+
 # TODO Restore database
