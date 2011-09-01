@@ -89,7 +89,7 @@ cd $KOHACLONE
 
 # TODO Check that the current directory is a git repo
 
-# TODO Make sure there are no uncomitted changes
+# Make sure there are no uncomitted changes
 if ! everything_is_commited
 then
   die "Cannot proceed: uncommitted changes!"
@@ -115,17 +115,17 @@ else
   echo "Created $mytmpdir"
 fi
 
-# TODO Backup database
+# Backup database
 echo "Dumping database..."
 dbtmpfile="$mytmpdir/backup.sql"
 mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > $dbtmpfile
 
 # TODO Create a branch to test in
 
-# TODO Use git bz to get patches? 
+# TODO Use git bz to get patches? Or ask for the URLs of patches as input?
 
 # Let the user choose to run Koha's tests
-# TODO Make this configurable through the config file: yes/no/ask
+# TODO Make this configurable through the config file: always/never/ask
 while true; do
     read -p "Do you wish to run Koha's test suite? (yes/no) " yn
     case $yn in
@@ -143,9 +143,9 @@ echo "Now test the changes!"
 
 # TODO Remove branch, or at least check out master again
 
-# TODO Restore database
+# Restore database
 echo "Restoring database..."
 mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" < $dbtmpfile
 
-# TODO Remove any files created during testing 
+# Remove any files created during testing 
 rm $mytmpdir/*
