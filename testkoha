@@ -91,13 +91,16 @@ else
 fi
 
 # TODO Backup database
-# mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME"
+echo "Dumping database..."
+dbtmpfile="$mytmpdir/backup.sql"
+mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > $dbtmpfile
 
 # TODO Create a branch to test in
 
 # TODO Use git bz to get patches? 
 
 # Let the user choose to run Koha's tests
+# TODO Make this configurable through the config file: yes/no/ask
 while true; do
     read -p "Do you wish to run Koha's test suite? (yes/no) " yn
     case $yn in
@@ -107,11 +110,17 @@ while true; do
     esac
 done
 
+# TODO Update the database
+
+echo "Now test the changes!"
+
 # TODO Sign off on patch(es)
 
 # TODO Remove branch, or at least check out master again
 
 # TODO Restore database
+echo "Restoring database..."
+mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" < $dbtmpfile
 
 # TODO Remove any files created during testing 
 rm $mytmpdir/*
