@@ -1,0 +1,12 @@
+kohatesting - A bash script for automating some of the tedious tasks 
+of testing Koha patches
+
+Not even sure if this will work...
+
+TODO
+Backup database
+Create a branch to test in
+Use git bz?
+Sign off on patch(es)
+Remove any files created during testing
+Restore database
