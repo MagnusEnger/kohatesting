@@ -16,14 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# TODO
-# Backup database
-# Create a branch to test in
-# Use git bz? 
-# Sign off on patch(es)
-# Remove any files created during testing 
-# Restore database
-
 set -e
 
 usage="Usage: $0 [--configfile /path/to/config] bugnumber"
@@ -87,4 +79,11 @@ cd $KOHACLONE
 git pull
 perl installer/data/mysql/updatedatabase.pl
 
+# TODO
+# Backup database
 # mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME"
+# Create a branch to test in
+# Use git bz? 
+# Sign off on patch(es)
+# Remove any files created during testing 
+# Restore database
