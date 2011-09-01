@@ -40,10 +40,6 @@ DBNAME="koha"
 DBUSER="kohaadmin"
 DBHOST="localhost"
 DBPASS="katikoan"
-if [ -e ./testkoha.conf ]
-then
-    . ./testkoha.conf
-fi
 
 [ $# -ge 1 ] && [ $# -le 3 ] || die $usage
 
