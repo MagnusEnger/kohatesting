@@ -20,6 +20,15 @@ set -e
 
 usage="Usage: $0 [--configfile /path/to/config] bugnumber"
 
+everything_is_commited() {
+  if git status --short | grep -q '^'
+  then
+    return 1
+  else
+    return 0
+  fi
+}
+
 die() {
     echo "$@" 1>&2
     exit 1
@@ -72,10 +81,26 @@ Database name:     $DBNAME
 Database user:     $DBUSER
 Database host:     $DBHOST
 Database password: ***
+
 eoh
 
-# Update the code and the database
+# Move to the directory that has the git repo
 cd $KOHACLONE
+
+# TODO Check that the current directory is a git repo
+
+# TODO Make sure there are no uncomitted changes
+if ! everything_is_commited
+then
+  die "Cannot proceed: uncommitted changes!"
+else 
+  echo "No uncommitted changes"
+fi
+  
+# Make sure we are on the master branch before we proceed
+git checkout master
+
+# Update the code and the database
 git pull
 perl installer/data/mysql/updatedatabase.pl
 
