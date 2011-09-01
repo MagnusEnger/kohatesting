@@ -1,0 +1,94 @@
+#!/bin/sh
+#
+# testkoha -- Automate some of the tedious tasks of testing patches 
+# Copyright 2011 Magnus Enger Libriotech
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# TODO
+# Backup database
+# Create a branch to test in
+# Use git bz? 
+# Sign off on patch(es)
+# Remove any files created during testing 
+# Restore database
+
+set -e
+
+usage="Usage: $0 [--configfile /path/to/config] bugnumber"
+
+die() {
+    echo "$@" 1>&2
+    exit 1
+}
+
+# Set defaults and read config file, if it exists.
+KOHACLONE="~/kohaclone"
+TMPDIR="/tmp/"
+DBNAME="koha"
+DBUSER="kohaadmin"
+DBHOST="localhost"
+DBPASS="katikoan"
+if [ -e ./testkoha.conf ]
+then
+    . ./testkoha.conf
+fi
+
+[ $# -ge 1 ] && [ $# -le 3 ] || die $usage
+
+TEMP=`getopt -o c: -l configfile: \
+     -n "$0" -- "$@"`
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+while true ; do
+	case "$1" in
+		-c|--configfile) configfile="$2" ; shift 2 ;;
+		--) shift ; break ;;
+		*) die "Internal error processing command line arguments" ;;
+	esac
+done
+
+# Load the configfile given on the command line
+if [ "$configfile" != "" ]
+then
+    if [ -e "$configfile" ]
+    then
+        . "$configfile"
+    else
+        die "$configfile does not exist.";
+    fi
+fi
+
+# Get the bug number
+bugnumber="$1"
+
+# Say what we are going to do
+cat <<eoh
+Going to test bug number $bugnumber with the following parameters:
+Koha directory:    $KOHACLONE
+Temporary files:   $TMPDIR
+Database name:     $DBNAME
+Database user:     $DBUSER
+Database host:     $DBHOST
+Database password: ***
+eoh
+
+# Update the code and the database
+cd $KOHACLONE
+git pull
+perl installer/data/mysql/updatedatabase.pl
+
+# mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME"
