@@ -79,6 +79,17 @@ cd $KOHACLONE
 git pull
 perl installer/data/mysql/updatedatabase.pl
 
+# Create a directory for the temporary files, if it does not exist
+mytmpdir="${TMPDIR}testkohatmp"
+if [ -e "$mytmpdir" ]
+then
+  # TODO Check permissions
+  echo "$mytmpdir exists"
+else
+  mkdir "$mytmpdir"
+  echo "Created $mytmpdir"
+fi
+
 # TODO Backup database
 # mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME"
 
@@ -98,8 +109,9 @@ done
 
 # TODO Sign off on patch(es)
 
-# TODO Remove any files created during testing 
-
 # TODO Remove branch, or at least check out master again
 
 # TODO Restore database
+
+# TODO Remove any files created during testing 
+rm $mytmpdir/*
