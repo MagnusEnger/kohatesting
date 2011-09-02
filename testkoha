@@ -131,14 +131,15 @@ perl installer/data/mysql/updatedatabase.pl
 
 # Let the user choose to run Koha's tests
 # TODO Make this configurable through the config file: always/never/ask
-while true; do
-    read -p "Do you wish to run Koha's test suite? (yes/no) " yn
-    case $yn in
-        [Yy]* ) prove; break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
+# FIXME Looks like the whole script exits if the tests fail? 
+# while true; do
+#     read -p "Do you wish to run Koha's test suite? (yes/no) " yn
+#     case $yn in
+#         [Yy]* ) prove; break;;
+#         [Nn]* ) break;;
+#         * ) echo "Please answer yes or no.";;
+#     esac
+# done
 
 echo "Now test the changes!"
 
@@ -147,7 +148,7 @@ while true; do
     read -p "Do you wish to sign off on that? (yes/no) " so_yn
     case $so_yn in
         [Yy]* ) git commit --amend -s; git bz attach -e xxxx HEAD; break;; 
-        [Nn]* ) break;;
+        [Nn]* ) echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$bugnumber and report on why you do not want to sign off."; break;;
         * ) echo "Please answer yes or no.";;
     esac
 done
