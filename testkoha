@@ -159,6 +159,11 @@ while true; do
     esac
 done
 
+# TODO Send patches to the list
+# TODO The name of the remote for the official repo should be configurable
+# TODO This should of course only be done if the user answered yes to signing off above - make a subroutine?
+# git send-email origin/master
+
 # Clean up
 
 # Check out master again
