@@ -3,8 +3,6 @@ of testing Koha patches
 
 Not even sure if this will work...
 
-TODO
-Create a branch to test in
-Use git bz?
-Sign off on patch(es)
-Remove branch or checkout master
+FIXME
+- Only tries to work for bugs with one patch, so far
+- Running the tests seems to kill the whole script, if the tests fail
