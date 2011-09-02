@@ -120,9 +120,14 @@ echo "Dumping database..."
 dbtmpfile="$mytmpdir/backup.sql"
 mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > $dbtmpfile
 
-# TODO Create a branch to test in
+# Create a branch to test in
+git checkout -b bug$bugnumber origin/master
 
-# TODO Use git bz to get patches? Or ask for the URLs of patches as input?
+# Use git bz to get patches? Or ask for the URLs of patches as input?
+git bz apply $bugnumber
+
+# Update the database
+perl installer/data/mysql/updatedatabase.pl
 
 # Let the user choose to run Koha's tests
 # TODO Make this configurable through the config file: always/never/ask
@@ -135,13 +140,24 @@ while true; do
     esac
 done
 
-# TODO Update the database
-
 echo "Now test the changes!"
 
-# TODO Sign off on patch(es)
+# Ask if the user is ready to sign off 
+while true; do
+    read -p "Do you wish to sign off on that? (yes/no) " so_yn
+    case $so_yn in
+        [Yy]* ) git commit --amend -s; git bz attach -e xxxx HEAD; break;; 
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 
-# TODO Remove branch, or at least check out master again
+# Clean up
+
+# Check out master again
+# TODO Let the user choose to checkout master and keep the branch
+# or delete the branch
+git checkout master 
 
 # Restore database
 echo "Restoring database..."
