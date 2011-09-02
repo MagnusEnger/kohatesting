@@ -126,6 +126,11 @@ git checkout -b bug$bugnumber origin/master
 # Use git bz to get patches? Or ask for the URLs of patches as input?
 git bz apply $bugnumber
 
+# FIXME Ask the user if the patches applied cleanly
+# If yes: proceed
+# If no:  tell the user to go to bugzilla and change status to "Does
+#         not apply", the clean up
+
 # Update the database
 perl installer/data/mysql/updatedatabase.pl
 
@@ -144,10 +149,11 @@ perl installer/data/mysql/updatedatabase.pl
 echo "Now test the changes!"
 
 # Ask if the user is ready to sign off 
+# FIXME Only works with one patch!
 while true; do
     read -p "Do you wish to sign off on that? (yes/no) " so_yn
     case $so_yn in
-        [Yy]* ) git commit --amend -s; git bz attach -e xxxx HEAD; break;; 
+        [Yy]* ) git commit --amend -s; git bz attach -e $bugnumber HEAD; echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$bugnumber and  change the Patch Status to Signed Off."; break;; 
         [Nn]* ) echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$bugnumber and report on why you do not want to sign off."; break;;
         * ) echo "Please answer yes or no.";;
     esac
