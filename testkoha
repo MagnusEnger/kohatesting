@@ -34,6 +34,14 @@ die() {
     exit 1
 }
 
+signoff() {
+  git commit --amend -s
+  git bz attach -e $1 HEAD
+  # FIXME The name of the remote for the official repo should be configurable
+  git send-email origin/master
+  echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$1 and change the Patch Status to Signed Off."
+}
+
 # Set defaults and read config file, if it exists.
 KOHACLONE="~/kohaclone"
 TMPDIR="/tmp/"
@@ -153,16 +161,11 @@ echo "Now test the changes!"
 while true; do
     read -p "Do you wish to sign off on that? (yes/no) " so_yn
     case $so_yn in
-        [Yy]* ) git commit --amend -s; git bz attach -e $bugnumber HEAD; echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$bugnumber and  change the Patch Status to Signed Off."; break;; 
+        [Yy]* ) signoff $bugnumber; break;; 
         [Nn]* ) echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$bugnumber and report on why you do not want to sign off."; break;;
         * ) echo "Please answer yes or no.";;
     esac
 done
-
-# TODO Send patches to the list
-# TODO The name of the remote for the official repo should be configurable
-# TODO This should of course only be done if the user answered yes to signing off above - make a subroutine?
-# git send-email origin/master
 
 # Clean up
 
