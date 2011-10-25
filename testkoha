@@ -37,8 +37,9 @@ die() {
 signoff() {
   git commit --amend -s
   git bz attach -e $1 HEAD
+  # We don't send signedoff patches to the mail list any longer
   # FIXME The name of the remote for the official repo should be configurable
-  git send-email origin/master
+  # git send-email origin/master
   echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$1 and change the Patch Status to Signed Off."
 }
 
