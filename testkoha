@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # testkoha -- Automate some of the tedious tasks of testing patches 
 # Copyright 2011 Magnus Enger Libriotech
