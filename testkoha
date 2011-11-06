@@ -130,6 +130,7 @@ dbtmpfile="$mytmpdir/backup.sql"
 mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > $dbtmpfile
 
 # Create a branch to test in
+# FIXME What to do if the branch already exists? 
 git checkout -b bug$bugnumber origin/master
 
 # Use git bz to get patches? Or ask for the URLs of patches as input?
