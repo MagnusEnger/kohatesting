@@ -141,7 +141,9 @@ git bz apply $bugnumber
 # If no:  tell the user to go to bugzilla and change status to "Does
 #         not apply", the clean up
 
-# Update the database
+# Update the database, after giving the user a chance to change
+# updatedatabase.pl ($DBversion = '3.06.00.XXX';)
+read -p "You might want to edit updatedatabase.pl before I proceed" -n1
 perl installer/data/mysql/updatedatabase.pl
 
 # Let the user choose to run Koha's tests
