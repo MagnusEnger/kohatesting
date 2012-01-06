@@ -177,8 +177,14 @@ done
 git checkout master 
 
 # Restore database
-echo "Restoring database..."
-mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" < $dbtmpfile
+while true; do
+    read -p "Do you wish to restore the database to what it was before this test " db_yn
+    case $db_yn in
+        [Yy]* ) echo "Restoring database..."; mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" < $dbtmpfile; break;;
+        [Nn]* ) echo "Database not restored"; break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 
 # Remove any files created during testing 
 rm $mytmpdir/*
