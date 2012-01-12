@@ -142,6 +142,9 @@ git bz apply $bugnumber
 #         not apply", the clean up
 
 # Update the database
+# TODO Ask the user if she wants to edit updatedatabase.pl?
+# This might be moot once the new system for database updates is in place
+vim installer/data/mysql/updatedatabase.pl
 perl installer/data/mysql/updatedatabase.pl
 
 # Let the user choose to run Koha's tests
@@ -172,13 +175,13 @@ done
 # Clean up
 
 # Check out master again
-# TODO Let the user choose to checkout master and keep the branch
-# or delete the branch
+# TODO Let the user choose to keep or delete the branch
+# FIXME This will fail if there are changes to e.g. updatedatabase
 git checkout master 
 
 # Restore database
 while true; do
-    read -p "Do you wish to restore the database to what it was before this test " db_yn
+    read -p "Do you wish to restore the database to what it was before this test (yes/no)" db_yn
     case $db_yn in
         [Yy]* ) echo "Restoring database..."; mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" < $dbtmpfile; break;;
         [Nn]* ) echo "Database not restored"; break;;
