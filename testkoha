@@ -50,7 +50,7 @@ DBNAME="koha"
 DBUSER="kohaadmin"
 DBHOST="localhost"
 DBPASS="katikoan"
-DATE=date=$(date +%D)
+DATE=$(date +%D)
 
 [ $# -ge 1 ] && [ $# -le 3 ] || die $usage
 
