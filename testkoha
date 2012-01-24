@@ -50,6 +50,7 @@ DBNAME="koha"
 DBUSER="kohaadmin"
 DBHOST="localhost"
 DBPASS="katikoan"
+DATE=date=$(date +%D)
 
 [ $# -ge 1 ] && [ $# -le 3 ] || die $usage
 
@@ -126,7 +127,7 @@ fi
 
 # Backup database
 echo "Dumping database..."
-dbtmpfile="$mytmpdir/backup.sql"
+dbtmpfile="$mytmpdir/$DATE-$bugnumber-backup.sql"
 mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > $dbtmpfile
 
 # Create a branch to test in
