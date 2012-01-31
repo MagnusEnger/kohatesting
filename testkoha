@@ -43,7 +43,7 @@ signoff() {
   echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$1 and change the Status to Signed Off."
 }
 
-# Set defaults and read config file, if it exists.
+# Set defaults
 KOHACLONE="~/kohaclone"
 TMPDIR="/tmp/"
 DBNAME="koha"
