@@ -166,6 +166,10 @@ perl installer/data/mysql/updatedatabase.pl
 
 echo "Now test the changes!"
 
+# TODO Let the user choose to enter a "screen" session, to be able to
+# do stuff on the commandline while testing, without opening another
+# terminal
+
 # Ask if the user is ready to sign off 
 # FIXME Only works with one patch!
 while true; do
