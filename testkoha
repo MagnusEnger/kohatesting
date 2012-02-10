@@ -43,22 +43,22 @@ signoff() {
   echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$1 and change the Status to Signed Off."
 }
 
-# Set defaults
-KOHACLONE="~/kohaclone"
-TMPDIR="/tmp/"
+# Check we have the correct number of arguments
+[ $# -ge 1 ] && [ $# -le 3 ] || die $usage
+
+# Set defaults and some other variables
+KOHACLONE="/home/koha/kohaclone/"
+DBDUMPDIR="/home/koha/kohatestdb/"
+DBDUMP="testing.sql"
 DBNAME="koha"
 DBUSER="kohaadmin"
 DBHOST="localhost"
 DBPASS="katikoan"
+DATE=$(date +%F)
 
-[ $# -ge 1 ] && [ $# -le 3 ] || die $usage
-
-TEMP=`getopt -o c: -l configfile: \
-     -n "$0" -- "$@"`
-
-# Note the quotes around `$TEMP': they are essential!
+# Get command line options
+TEMP=`getopt -o c: -l configfile: -n "$0" -- "$@"`
 eval set -- "$TEMP"
-
 while true ; do
 	case "$1" in
 		-c|--configfile) configfile="$2" ; shift 2 ;;
@@ -81,17 +81,16 @@ fi
 # Get the bug number
 bugnumber="$1"
 
-# Say what we are going to do
-cat <<eoh
-Going to test bug number $bugnumber with the following parameters:
-Koha directory:    $KOHACLONE
-Temporary files:   $TMPDIR
-Database name:     $DBNAME
-Database user:     $DBUSER
-Database host:     $DBHOST
-Database password: ***
+# Assemble the name of the DB dump
+dbfile="$DBDUMPDIR/$DBDUMP"
 
-eoh
+# Check that the DB dump actually exists
+if [ -e "$dbfile" ]
+then
+  echo "OK, $dbfile exists"
+else
+  die "$dbfile does not exist.";
+fi
 
 # Move to the directory that has the git repo
 cd $KOHACLONE
@@ -105,29 +104,47 @@ then
 else 
   echo "No uncommitted changes"
 fi
-  
+    
+# Say what we are going to do
+cat <<eoh
+Going to test bug number $bugnumber with the following parameters:
+Koha directory:    $KOHACLONE
+Database dump:     $dbfile
+Dir of DB-files:   $DBDUMPDIR
+Database name:     $DBNAME
+Database user:     $DBUSER
+Database host:     $DBHOST
+Database password: ***
+
+eoh
+
+# Load the testing database
+echo "Loading $dbfile"
+mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" < $dbfile
+
 # Make sure we are on the master branch before we proceed
 git checkout master
 
 # Update the code and the database
 git pull
-perl installer/data/mysql/updatedatabase.pl
 
+# TODO Delete this code:
 # Create a directory for the temporary files, if it does not exist
-mytmpdir="${TMPDIR}testkohatmp"
-if [ -e "$mytmpdir" ]
-then
-  # TODO Check permissions
-  echo "$mytmpdir exists"
-else
-  mkdir "$mytmpdir"
-  echo "Created $mytmpdir"
-fi
+# mytmpdir="${DBDUMPDIR}testkohatmp"
+# if [ -e "$mytmpdir" ]
+# then
+#   # TODO Check permissions
+#   echo "$mytmpdir exists"
+# else
+#   mkdir "$mytmpdir"
+#   echo "Created $mytmpdir"
+# fi
 
+# TODO Remove this code
 # Backup database
-echo "Dumping database..."
-dbtmpfile="$mytmpdir/backup.sql"
-mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > $dbtmpfile
+# echo "Dumping database..."
+# dbtmpfile="$mytmpdir/backup.sql"
+# mysqldump --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > $dbtmpfile
 
 # Create a branch to test in
 # FIXME What to do if the branch already exists? 
@@ -138,12 +155,13 @@ git bz apply $bugnumber
 
 # FIXME Ask the user if the patches applied cleanly
 # If yes: proceed
-# If no:  tell the user to go to bugzilla and change status to "Does
-#         not apply", the clean up
+# If no:  - give the user a shell (screen?) to sort the situation out
+#         - tell the user to go to bugzilla and change status to "Does
+#           not apply", then clean up
 
 # Update the database, after giving the user a chance to change
 # updatedatabase.pl ($DBversion = '3.06.00.XXX';)
-read -p "Do you want to edit updatedatabase.pl? [y/n]" -n1 editupdatedb
+read -p "Do you want to edit updatedatabase.pl? [y/n] " -n1 editupdatedb
 if [ $editupdatedb == 'y' ]; then
   # This might be unnecessary once the new system for database 
   # updates is in place?
@@ -173,7 +191,7 @@ echo "Now test the changes!"
 # Ask if the user is ready to sign off 
 # FIXME Only works with one patch!
 while true; do
-    read -p "Do you wish to sign off on that? (yes/no) " so_yn
+    read -p "Do you wish to sign off on that? [y/n] " so_yn
     case $so_yn in
         [Yy]* ) signoff $bugnumber; break;; 
         [Nn]* ) echo "Please go to http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=$bugnumber and report on why you do not want to sign off."; break;;
@@ -188,15 +206,14 @@ done
 # FIXME This will fail if there are changes to e.g. updatedatabase
 git checkout master 
 
-# Restore database
+# Let the user choose to keep a dump of the database after testing
+# Construct the filename
+keepdbfile="$DBDUMPDIR/kohatest-bug$bugnumber-$DATE.sql"
 while true; do
-    read -p "Do you wish to restore the database to what it was before this test (yes/no)" db_yn
-    case $db_yn in
-        [Yy]* ) echo "Restoring database..."; mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" < $dbtmpfile; break;;
-        [Nn]* ) echo "Database not restored"; break;;
+    read -p "Do you wish to save a dump of the database [y/n] " keepdb_yn
+    case $keepdb_yn in
+        [Yy]* ) echo "Dumping database as $keepdbfile..."; mysql --host="$DBHOST" --user="$DBUSER" --password="$DBPASS" "$DBNAME" > "$keepdbfile"; break;;
+        [Nn]* ) echo "Database not dumped"; break;;
         * ) echo "Please answer yes or no.";;
     esac
 done
-
-# Remove any files created during testing 
-rm $mytmpdir/*
